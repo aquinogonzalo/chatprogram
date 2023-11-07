@@ -12,12 +12,21 @@ app.get('/', (_req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+let mensajesEnviados = [];
+
 io.on('connection', (socket) => {
     console.log(socket.id);
 
+    for (let i = 0; i < mensajesEnviados.length; i++) {
+        socket.emit('chat message', mensajesEnviados[i]);
+    }
+
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
-        console.log(msg);
+        mensajesEnviados.push(msg);
+
+        console.log(socket.id, ":", msg);
+        console.log(mensajesEnviados);
     });
 
     socket.on('disconnect', () => {
@@ -26,5 +35,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(3000, () => {
-  console.log('listening on *:3000');
+    console.log('listening on *:3000');
 });
