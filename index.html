@@ -66,7 +66,11 @@
 </head>
 
 <body>
-    <ul id="messages"></ul>
+    <ul id="messages">
+    </ul>
+    <p id="typing">
+
+    </p>
     <form id="form" action="">
         <input id="input" autocomplete="off" /><button>Send</button>
     </form>
@@ -75,9 +79,10 @@
     </script>
 
     <script>
-
+        let typing = document.getElementById('typing')
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
         let usuario = prompt("Ingresa tu nombre de usuario!")
-        let colorMensaje = prompt("Que color te gustaria? rojo, verde o azul?");
 
         const verMensajes = (msg) => {
             var item = document.createElement('li');
@@ -86,10 +91,27 @@
             window.scrollTo(0, document.body.scrollHeight)
         }
 
+
+
         const socket = io();
 
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
+        input.addEventListener(
+            'keyup',
+            () => {
+                if (input.value) {
+                    typing.textContent = `${usuario} está escribiendo...`
+                    window.scrollTo(0, document.body.scrollHeight)
+                }
+                else {
+                    typing.textContent = ''
+                    window.scrollTo(0, document.body.scrollHeight)
+                }
+                socket.emit('chat message', typingContent)
+                window.scrollTo(0, document.body.scrollHeight)
+            }
+
+        )
+
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             if (input.value) {

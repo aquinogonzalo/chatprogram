@@ -24,10 +24,10 @@ io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
         mensajesEnviados.push(msg);
-
-        console.log(socket.id, ":", msg);
         console.log(mensajesEnviados);
     });
+
+
 
     socket.on('disconnect', () => {
         console.log('user disconnected', socket.id);
