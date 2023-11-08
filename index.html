@@ -10,6 +10,10 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        .usuario {
+            font-weight: bold;
+        }
+
         #form {
             background: rgba(0, 0, 0, 0.15);
             padding: 0.25rem;
@@ -72,6 +76,9 @@
 
     <script>
 
+        let usuario = prompt("Ingresa tu nombre de usuario!")
+        let colorMensaje = prompt("Que color te gustaria? rojo, verde o azul?");
+
         const verMensajes = (msg) => {
             var item = document.createElement('li');
             item.textContent = msg;
@@ -83,11 +90,10 @@
 
         const form = document.getElementById('form');
         const input = document.getElementById('input');
-
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             if (input.value) {
-                socket.emit('chat message', `(${socket.id}): ${input.value}`);
+                socket.emit('chat message', `${usuario}: ${input.value}`);
                 input.value = '';
             }
         });
