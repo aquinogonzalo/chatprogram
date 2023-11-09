@@ -22,24 +22,39 @@
             left: 0;
             right: 0;
             display: flex;
-            height: 3rem;
+            height: 6rem;
             box-sizing: border-box;
             backdrop-filter: blur(10px);
+            flex-direction: column;
+        }
+
+        #botonera {
+            width: 100%;
+            padding-bottom: 1rem;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: row;
+            height: 50%;
         }
 
         #input {
             border: none;
-            padding: 0 1rem;
-            flex-grow: 1;
             border-radius: 2rem;
             margin: 0.25rem;
+            height: 100%;
+            width: 100%;
+            padding-left: 21px;
+            cursor: text;
+
         }
 
         #input:focus {
             outline: none;
         }
 
-        #form>button {
+        #form>div>button {
             background: #333;
             border: none;
             padding: 0 1rem;
@@ -47,6 +62,8 @@
             border-radius: 3px;
             outline: none;
             color: #fff;
+            height: 100%;
+            cursor: pointer;
         }
 
         #messages {
@@ -62,70 +79,130 @@
         #messages>li:nth-child(odd) {
             background: #efefef;
         }
+
+        #typing {
+            background-color: #d9d9d9;
+            margin: 0%;
+            padding-left: 20px;
+        }
+
+        #contenedorTyping {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin: 4px;
+            height: 30px;
+
+        }
+
+        #led {
+            border-radius: 2cm;
+            width: 15px;
+            height: 15px;
+            animation: blinker 1s linear infinite;
+            position: absolute;
+        }
+
+        .escribiendo {
+            background-color: yellow;
+        }
+
+        .enLinea {
+            background-color: green;
+        }
     </style>
 </head>
 
 <body>
-    <ul id="messages">
-    </ul>
-    <p id="typing">
 
-    </p>
-    <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+    <body>
+        <ul id="messages">
+        </ul>
+        <form id="form" action="">
+            <div id="contenedorTyping">
+                <div id="led" class="enLinea">
+                </div>
+                <p id="typing">
+                    En linea
+                </p>
+            </div>
+            <div id="botonera">
+                <input id="input" autocomplete="off" /><button>Send</button>
+            </div>
+        </form>
+        <script src="/socket.io/socket.io.js">
+        </script>
 
-    <script src="/socket.io/socket.io.js">
-    </script>
-
-    <script>
-        let typing = document.getElementById('typing')
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        let usuario = prompt("Ingresa tu nombre de usuario!")
-
-        const verMensajes = (msg) => {
-            var item = document.createElement('li');
-            item.textContent = msg;
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight)
-        }
+        <script>
 
 
-
-        const socket = io();
-
-        input.addEventListener(
-            'keyup',
-            () => {
-                if (input.value) {
-                    typing.textContent = `${usuario} está escribiendo...`
-                    window.scrollTo(0, document.body.scrollHeight)
-                }
-                else {
-                    typing.textContent = ''
-                    window.scrollTo(0, document.body.scrollHeight)
-                }
-                socket.emit('chat message', typingContent)
+            const verMensajes = (msg) => {
+                var item = document.createElement('li');
+                item.textContent = msg;
+                messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight)
             }
-
-        )
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            if (input.value) {
-                socket.emit('chat message', `${usuario}: ${input.value}`);
-                input.value = '';
+            const verEscribiendo = (msg) => {
+                var item = document.getElementById('typing');
+                item.textContent = msg;
+                window.scrollTo(0, document.body.scrollHeight)
+                if (led.classList.contains('enLinea') && typing.textContent != 'En linea') {
+                    led.classList.remove('enLinea')
+                    led.classList.add('escribiendo')
+                } else if ((led.classList.contains('escribiendo') && typing.textContent == 'En linea')) {
+                    led.classList.remove('escribiendo')
+                    led.classList.add('enLinea')
+                    item.textContent = 'En linea'
+                }
             }
-        });
 
-        socket.on('chat message', function (msg) {
-            verMensajes(msg);
-        });
+            const socket = io();
+            let typing = document.getElementById('typing')
+            const form = document.getElementById('form');
+            const input = document.getElementById('input');
+            let usuario = prompt("Ingresa tu nombre de usuario!")
+            const led = document.getElementById('led')
+
+            input.addEventListener(
+                'keyup',
+                () => {
+                    if (input.value) {
+                        typing.textContent = `${usuario} está escribiendo...`
+                        socket.emit('typing', typing.textContent)
+                        led.classList.remove('enLinea')
+                        led.classList.add('escribiendo')
+                    }
+                    else {
+                        typing.textContent = 'En linea'
+                        led.classList.remove('escribiendo')
+                        led.classList.add('enLinea')
+                        socket.emit('typing')
+                    }
+
+                    window.scrollTo(0, document.body.scrollHeight)
+                }
+            )
 
 
-    </script>
-</body>
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input.value) {
+                    socket.emit('chat message', `${usuario}: ${input.value}`);
+                    input.value = '';
+                }
+            });
+
+            socket.on('chat message', function (msg) {
+                verMensajes(msg);
+            });
+
+            socket.on('typing', function (msg) {
+                verEscribiendo(msg);
+
+            })
+
+
+        </script>
+    </body>
 
 </html>

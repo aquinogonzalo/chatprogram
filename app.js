@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const cors = require('cors');
+const { stat } = require('fs');
 
 app.use(cors());
 
@@ -27,6 +28,9 @@ io.on('connection', (socket) => {
         console.log(mensajesEnviados);
     });
 
+    socket.on('typing', (msg) => {
+        socket.broadcast.emit('typing', msg);
+    })
 
 
     socket.on('disconnect', () => {
