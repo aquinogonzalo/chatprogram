@@ -146,13 +146,13 @@
                 var item = document.getElementById('typing');
                 item.textContent = msg;
                 window.scrollTo(0, document.body.scrollHeight)
-                if (led.classList.contains('enLinea') && typing.textContent != 'En linea') {
-                    led.classList.remove('enLinea')
-                    led.classList.add('escribiendo')
-                } else if ((led.classList.contains('escribiendo') && typing.textContent == 'En linea')) {
-                    led.classList.remove('escribiendo')
-                    led.classList.add('enLinea')
-                    item.textContent = 'En linea'
+                if (led.classList.contains('enLinea') && typing.textContent !== 'En linea') {
+                    led.classList.remove('enLinea');
+                    led.classList.add('escribiendo');
+                } else if (led.classList.contains('escribiendo') && (typing.textContent === 'En linea' || typing.textContent === '' || typing.textContent === false)) {
+                    led.classList.remove('escribiendo');
+                    led.classList.add('enLinea');
+                    item.textContent = 'En linea';
                 }
             }
 
@@ -163,25 +163,20 @@
             let usuario = prompt("Ingresa tu nombre de usuario!")
             const led = document.getElementById('led')
 
-            input.addEventListener(
-                'keyup',
-                () => {
-                    if (input.value) {
-                        typing.textContent = `${usuario} está escribiendo...`
-                        socket.emit('typing', typing.textContent)
-                        led.classList.remove('enLinea')
-                        led.classList.add('escribiendo')
-                    }
-                    else {
-                        typing.textContent = 'En linea'
-                        led.classList.remove('escribiendo')
-                        led.classList.add('enLinea')
-                        socket.emit('typing')
-                    }
-
-                    window.scrollTo(0, document.body.scrollHeight)
+            input.addEventListener('keyup', () => {
+                if (input.value) {
+                    typing.textContent = `${usuario} está escribiendo...`;
+                    socket.emit('typing', typing.textContent);
+                    led.classList.remove('enLinea');
+                    led.classList.add('escribiendo');
+                } else if ((input.value == "") || (!input.value)) {
+                    typing.textContent = 'En linea';
+                    socket.emit('typing', typing.textContent);
+                    led.classList.remove('escribiendo');
+                    led.classList.add('enLinea');
                 }
-            )
+                window.scrollTo(0, document.body.scrollHeight);
+            });
 
 
             form.addEventListener('submit', function (e) {
